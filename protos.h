@@ -5,13 +5,13 @@
 #ifndef PROTOS_H
 #define PROTOS_H
 
-#include <stdint.h>
+#include <string>
 #include <netinet/in.h>
 #include <sys/types.h>
 
 #define NUM_PROTOS 512
 
-char* proto_name_lookup(uint8_t proto_id);
+std::string& proto_name_lookup(uint32_t proto_id);
 
 struct sniff_ip
 {
