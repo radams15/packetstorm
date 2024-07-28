@@ -4,11 +4,6 @@
 
 #include "protos.h"
 
-#include <map>
-
-#include <cstddef>
-#include <netinet/in.h>
-
 std::map<uint32_t, std::string> protoMap = {
     {IPPROTO_IP, "IP"},
     {IPPROTO_ICMP, "ICMP"},
@@ -37,7 +32,3 @@ std::map<uint32_t, std::string> protoMap = {
     {IPPROTO_RAW, "RAW"},
     {IPPROTO_MPTCP, "MPTCP"},
 };
-
-std::string& proto_name_lookup(uint32_t proto_id) {
-    return protoMap[proto_id];
-}

@@ -20,14 +20,13 @@ struct PacketsInfo {
 
 void packet_handler(
     u_char *args,
-    const struct pcap_pkthdr *header,
+    const pcap_pkthdr *header,
     const u_char *packet
     ) {
+    auto* packets_info = (struct PacketsInfo*) args;
 
-    struct PacketsInfo* packets_info = (struct PacketsInfo*) args;
-
-    struct ether_header *eth_header;
-    eth_header = (struct ether_header *) packet;
+    ether_header *eth_header;
+    eth_header = (ether_header *) packet;
     if (ntohs(eth_header->ether_type) != ETHERTYPE_IP) {
         return;
     }
@@ -36,19 +35,13 @@ void packet_handler(
     packets_info->num_packets++;
 
     const u_char *ip_header = packet + ETHERNET_HEADER_LENGTH;
-    struct sniff_ip* ip = (struct sniff_ip*) ip_header;
+    auto* ip = (struct sniff_ip*) ip_header;
 
     u_char protocol = ip->ip_p;
-    uint8_t length = ip->ip_len;
-    uint8_t version = (ip->ip_vhl) >>4 & 0xF;
     uint32_t ip_dst = ip->ip_dst.s_addr;
 
     packets_info->destinations[ip_dst]++;
     packets_info->proto_counts[protocol]++;
-}
-
-void print_packet_info(uint32_t ip, uint32_t count) {
-    printf("%s => %d\n", inet_ntoa((struct in_addr){ip}), count);
 }
 
 bool sort_ascending(
@@ -59,41 +52,40 @@ bool sort_ascending(
 }
 
 
-int main(void) {
+int main(int argc, char** argv) {
     char error_buffer[PCAP_ERRBUF_SIZE];
-    const u_char *packet;
-    struct pcap_pkthdr packet_header;
 
-    struct PacketsInfo packets_info = {
+    PacketsInfo packets_info = {
         .total_data = 0,
         .num_packets =  0,
     };
 
     pcap_t *handle = pcap_open_offline(INPUT_FILE, error_buffer);
-
-    pcap_loop(handle, 0, packet_handler, (u_char*) &packets_info);
-
+    pcap_loop(handle, 0, packet_handler, reinterpret_cast<u_char *>(&packets_info));
     pcap_close(handle);
-
-    printf(
-        "Total packets: %lu\nTotal Data: %lu B\nAverage packet size: %lu B\n",
-        packets_info.num_packets,
-        packets_info.total_data,
-        packets_info.total_data / packets_info.num_packets
-    );
-
 
     std::vector<std::pair<uint32_t, uint32_t> > vec(packets_info.destinations.begin(), packets_info.destinations.end());
     std::sort(vec.begin(), vec.end(), sort_ascending);
     for(auto it = vec.begin() ; it != vec.end() ; it++) {
-        print_packet_info(it->first, it->second);
+        printf("%s => %d\n", inet_ntoa((in_addr){it->first}), it->second);
     }
+
+    printf(
+        R"(
+Total packets: %lu
+Total Data: %lu B
+Average packet size: %.2f B
+)",
+        packets_info.num_packets,
+        packets_info.total_data,
+        static_cast<double>(packets_info.total_data) / static_cast<double>(packets_info.num_packets)
+    );
 
     for(int i=0 ; i<NUM_PROTOS ; i++) {
         uint64_t count = packets_info.proto_counts[i];
         if(count > 0) {
-            const char* proto_name = proto_name_lookup(i).c_str();
-            printf("%s => %lu\n", proto_name, count);
+            std::string proto_name = protoMap[i];
+            printf("%s => %lu packets\n", proto_name.c_str(), count);
         }
     }
 

@@ -5,13 +5,14 @@
 #ifndef PROTOS_H
 #define PROTOS_H
 
+#include <map>
 #include <string>
 #include <netinet/in.h>
 #include <sys/types.h>
 
 #define NUM_PROTOS 512
 
-std::string& proto_name_lookup(uint32_t proto_id);
+extern std::map<uint32_t, std::string> protoMap;
 
 struct sniff_ip
 {

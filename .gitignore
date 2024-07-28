@@ -1,2 +1,11 @@
 cmake-build-debug/
 packet-storm.pcap
+/protos.txt
+/httpreqs.pl
+/out.bin
+/data1.dat
+/observations.txt
+/packet-storm.pcap
+/data.dat
+/packetstorm.pcap
+/showprotos.sh
