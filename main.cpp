@@ -73,9 +73,9 @@ int main(int argc, char** argv) {
     // Convert the map to a vector to allow sorting and iterating
     std::vector<std::pair<uint32_t, uint32_t> > vec(packets_info.destinations.begin(), packets_info.destinations.end());
     std::sort(vec.begin(), vec.end(), sort_ascending);
-    for(auto it = vec.begin() ; it != vec.end() ; ++it) {
+    for(auto& it : vec) {
         // Print the ip address and the count
-        printf("%s => %d\n", inet_ntoa((in_addr){it->first}), it->second);
+        printf("%s => %d\n", inet_ntoa((in_addr){it.first}), it.second);
     }
 
     printf(
@@ -89,10 +89,10 @@ Average packet size: %.2f B
         double(packets_info.total_data) / double(packets_info.num_packets) // mean packet size
     );
 
-    for(int i=0 ; i<NUM_PROTOS ; i++) {
-        uint64_t count = packets_info.proto_counts[i];
+    for(auto const& it : protoMap) {
+        uint64_t count = packets_info.proto_counts[it.first];
         if(count > 0) {
-            std::string proto_name = protoMap[i];
+            std::string proto_name = it.second;
             printf("%s => %lu packets\n", proto_name.c_str(), count);
         }
     }
