@@ -6,8 +6,6 @@ set(CMAKE_C_STANDARD 11)
 add_executable(packetstorm main.cpp
         protos.h
         protos.cpp
-        hashtable.cpp
-        hashtable.h
 )
 
 target_link_libraries(packetstorm pcap)
