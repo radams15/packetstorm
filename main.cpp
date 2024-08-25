@@ -9,7 +9,6 @@
 
 #include "protos.h"
 
-#define INPUT_FILE "packet-storm.pcap"
 #define ETHERNET_HEADER_LENGTH 14
 
 typedef struct PacketsInfo {
@@ -62,11 +61,15 @@ bool sort_ascending(
 
 
 int main(int argc, char** argv) {
+    if(argc <= 1) {
+        fprintf(stderr, "Usage: %s [PCAP_FILE]\n", argv[0]);
+    }
+
     char error_buffer[PCAP_ERRBUF_SIZE];
 
     PacketsInfo packets_info;
 
-    pcap_t *handle = pcap_open_offline(INPUT_FILE, error_buffer);
+    pcap_t *handle = pcap_open_offline(argv[1], error_buffer);
     pcap_loop(handle, 0, packet_handler, (u_char*) &packets_info);
     pcap_close(handle);
 
@@ -81,19 +84,22 @@ int main(int argc, char** argv) {
     printf(
         R"(
 Total packets: %lu
-Total Data: %lu B
+Total data: %lu B
 Average packet size: %.2f B
+Most frequent destination: %s (%d packets)
 )",
         packets_info.num_packets,
         packets_info.total_data,
-        double(packets_info.total_data) / double(packets_info.num_packets) // mean packet size
+        double(packets_info.total_data) / double(packets_info.num_packets), // mean packet size
+        inet_ntoa((in_addr){vec.back().first}),
+        vec.back().second
     );
 
+    // Iterate through protocol map for list of different protocols
     for(auto const& it : protoMap) {
         uint64_t count = packets_info.proto_counts[it.first];
-        if(count > 0) {
-            std::string proto_name = it.second;
-            printf("%s => %lu packets\n", proto_name.c_str(), count);
+        if(count > 0) { // i.e. there were any packets from this protocol
+            printf("%s => %lu packets\n", it.second.c_str(), count);
         }
     }
 
