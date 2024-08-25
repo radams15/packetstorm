@@ -10,8 +10,6 @@
 #include <netinet/in.h>
 #include <sys/types.h>
 
-#define NUM_PROTOS 512
-
 extern std::map<uint32_t, std::string> protoMap;
 
 struct sniff_ip

@@ -1,7 +1,6 @@
 #include <algorithm>
 #include <map>
 #include <cstdio>
-#include <memory>
 
 #include <pcap.h>
 #include <vector>
@@ -63,6 +62,7 @@ bool sort_ascending(
 int main(int argc, char** argv) {
     if(argc <= 1) {
         fprintf(stderr, "Usage: %s [PCAP_FILE]\n", argv[0]);
+        return 1;
     }
 
     char error_buffer[PCAP_ERRBUF_SIZE];
@@ -70,6 +70,12 @@ int main(int argc, char** argv) {
     PacketsInfo packets_info;
 
     pcap_t *handle = pcap_open_offline(argv[1], error_buffer);
+
+    if(handle == NULL) {
+        fprintf(stderr, "Failed to open file: '%s'\n", argv[1]);
+        return 1;
+    }
+
     pcap_loop(handle, 0, packet_handler, (u_char*) &packets_info);
     pcap_close(handle);
 
