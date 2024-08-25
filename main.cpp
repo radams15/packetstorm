@@ -74,9 +74,9 @@ int main(int argc, char** argv) {
     pcap_close(handle);
 
     // Convert the map to a vector to allow sorting and iterating
-    std::vector<std::pair<uint32_t, uint32_t> > vec(packets_info.destinations.begin(), packets_info.destinations.end());
-    std::sort(vec.begin(), vec.end(), sort_ascending);
-    for(auto& it : vec) {
+    std::vector<std::pair<uint32_t, uint32_t> > packet_destinations(packets_info.destinations.begin(), packets_info.destinations.end());
+    std::sort(packet_destinations.begin(), packet_destinations.end(), sort_ascending);
+    for(auto& it : packet_destinations) {
         // Print the ip address and the count
         printf("%s => %d\n", inet_ntoa((in_addr){it.first}), it.second);
     }
@@ -91,8 +91,8 @@ Most frequent destination: %s (%d packets)
         packets_info.num_packets,
         packets_info.total_data,
         double(packets_info.total_data) / double(packets_info.num_packets), // mean packet size
-        inet_ntoa((in_addr){vec.back().first}),
-        vec.back().second
+        inet_ntoa((in_addr){packet_destinations.back().first}),
+        packet_destinations.back().second
     );
 
     // Iterate through protocol map for list of different protocols
