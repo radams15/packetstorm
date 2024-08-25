@@ -1,0 +1,35 @@
+=pod
+
+=head1 Packet Storm
+
+=head3 Building
+
+    $ mkdir build && cd build
+    $ cmake ..
+    $ make -j$(nproc)
+    $ ./packetstorm [PCAP_FILE]
+
+=head3 Verifying
+
+To verify the results, run the program against the packetstorm pcap file. The output should
+be as follows:
+
+    96.127.22.200 => 1
+    201.128.21.200 => 1
+    ...
+    2.115.99.151 => 16
+    229.154.57.192 => 17
+
+    Total packets: 1000000
+    Total data: 147258908 B
+    Average packet size: 147.26 B
+    Most frequent destination: 229.154.57.192 (17 packets)
+    TCP => 940837 packets
+    UDP => 59163 packets
+
+The first list is packet count by IP and thus is not directly relevant, although it is helpful
+to see if there are multiple destination IPs with the highest packet count
+
+The second list is the requested information which can be checked against the requirements.
+
+=cut
